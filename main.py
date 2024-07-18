@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import Canvas
+import heapq
+
 
 
 
@@ -40,6 +42,10 @@ def level2(mat, time, start, end):
 
     while queue:
         row, col, curr_time = queue.pop(0)
+
+        # the heuristic method:
+        # retain a queue containing coordinates and weights, then get the one with the smallest weight AROUND the goal, then find optimal path to that goal using the same method
+
         if curr_time > time:
             continue
         if (row, col) == end:
@@ -56,8 +62,9 @@ def level2(mat, time, start, end):
 
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = row + dr, col + dc
-            if 0 <= nr < len(mat) and 0 <= nc < len(mat[0]) and mat[nr][nc]!= -1:
-                new_time = curr_time + 1
+            if 0 <= nr < len(mat) and 0 <= nc < len(mat[0]) and mat[nr][nc] != -1:
+                cell = mat[nr][nc]
+                new_time = curr_time + (1 if cell == 0 or isinstance(cell, str) else cell)
 
                 if new_time < distance_matrix[nr][nc]:
                     distance_matrix[nr][nc] = new_time
@@ -135,8 +142,6 @@ def main(fileName):
     draw_map(canvas, mat, cell_size)
 
     root.mainloop()
-
-
 
 if __name__ == '__main__':
     main('input.txt')
