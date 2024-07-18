@@ -1,13 +1,8 @@
 import tkinter as tk
 from tkinter import Canvas
-<<<<<<< HEAD
 import heapq
-
-
-=======
 from SearchAlgo.supportiveFunctions import *
 from SearchAlgo import DFS, UCS, BFS, AStar, GBFS
->>>>>>> 7863cb239a0cb93921f9b6656f5fb738dc9bde30
 
 
 def readInput(fileName):
