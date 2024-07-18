@@ -1,8 +1,13 @@
 import tkinter as tk
 from tkinter import Canvas
+<<<<<<< HEAD
 import heapq
 
 
+=======
+from SearchAlgo.supportiveFunctions import *
+from SearchAlgo import DFS, UCS, BFS, AStar, GBFS
+>>>>>>> 7863cb239a0cb93921f9b6656f5fb738dc9bde30
 
 
 def readInput(fileName):
@@ -34,6 +39,22 @@ def readInput(fileName):
                 print(f"\n\nError occured while reading data: ({idx}, {idj}) - \"{j}\"\n\n")
                 break
     return time, fuel, mat, agent, goal, station
+
+def level1(algorithm, adjacency_matrix, start_node, goal_node):
+    if algorithm == "DFS":
+        search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
+    elif algorithm == "UCS":
+        search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
+    elif algorithm == "AStar":
+        search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
+    elif algorithm == "BFS":
+        search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
+    elif algorithm == "GBFS":
+        search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
+    else:
+        raise ValueError("Invalid algorithm name")
+    
+    return search_algo.Try()
 
 def level2(mat, time, start, end):
     distance_matrix = [[float('inf') for _ in range(len(mat[0]))] for _ in range(len(mat))]
@@ -102,18 +123,27 @@ def autorun(canvas, mat, cell_size):
     #     canvas.after(1000)  
     pass    
 
-def next_step(canvas, mat, cell_size, steps):
-    if not steps:
+def next_step(canvas, mat, cell_size, path):
+    if not path:
         return
-    canvas.delete("all")
-    create_grid(canvas, len(mat), len(mat[0]), cell_size)
-    row, col = steps.pop(0)
-    mat[row][col] = 'S'
-    draw_map(canvas, mat, cell_size)
+    print(path)
+    draw_paths(canvas, path, cell_size)
+    
 
+def draw_paths(canvas, path, cell_size):
+    color = 'green'
+    for i in range(len(path) - 1):
+        y1, x1 = path[i]
+        y2, x2 = path[i + 1]
+        canvas.create_line(
+            (x1 + 0.5) * cell_size, (y1 + 0.5) * cell_size,
+            (x2 + 0.5) * cell_size, (y2 + 0.5) * cell_size,
+            fill=color, width=3
+            )
+        
 def main(fileName):
     time, fuel, mat, agent, goal, station = readInput(fileName)
-    steps = level2(mat, time, agent['S'], goal['G'])
+    steps = level1("AStar", mat, agent['S'], goal['G'])
 
     root = tk.Tk()
     root.title("City Map GUI")
