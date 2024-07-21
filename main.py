@@ -55,7 +55,6 @@ class Map:
                         if 0 <= nr < len(mat) and 0 <= nc < len(mat[0]) and distance_matrix[nr][nc] < distance_matrix[row][col]:
                             row, col = nr, nc
                             break
-                path.append(start)
                 return path[::-1]
 
             for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
