@@ -13,12 +13,11 @@ class Map:
         fuel = 0
         agent = {}
         goal = {}
-        station = {}
+        station = []
         mat = []
         map_dict = {
             'S': agent,
             'G': goal,
-            'F': station
         }
         with open(file_name, 'r') as i_file:
             _, _, time, fuel = [int(i) for i in i_file.readline().split(' ')]
@@ -27,8 +26,11 @@ class Map:
                 mat.append([])
                 for idj, j in enumerate(i.split(' ')):
                     try:
-                        if j[0] in ['S', 'G', 'F']:
+                        if j[0] in ['S', 'G']:
                             map_dict[j[0]][j] = (idx, idj)
+                            mat[idx].append(j)
+                        if j[0] == 'F':
+                            station.append(j)
                             mat[idx].append(j)
                         else:
                             mat[idx].append(int(j))
@@ -199,21 +201,6 @@ class Map:
         self.draw_map(canvas, self.mat, cell_size)
 
         root.mainloop()
-
-# def level1(algorithm, adjacency_matrix, start_node, goal_node):
-#     if algorithm == "DFS":
-#         search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "UCS":
-#         search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "AStar":
-#         search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "BFS":
-#         search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "GBFS":
-#         search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
-#     else:
-#         raise ValueError("Invalid algorithm name")
-#     return search_algo.Try()
 
 if __name__ == '__main__':
     city_map = Map('input.txt')
