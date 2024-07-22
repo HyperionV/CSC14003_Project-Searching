@@ -6,7 +6,20 @@ class Map:
     def __init__(self, file_name):
         self.time, self.fuel, self.mat, self.agent, self.goal, self.station = self.read_input(file_name)
         self.steps = self.level2(self.mat, self.time, self.agent['S'], self.goal['G'])
-        self.step3 = self.level3()
+        # self.step3 = self.level3()
+        
+        self.colors = {
+            0: "white",
+            -1: "LightSkyBlue4",
+            1: "SlateGray1",
+            'S': "DarkSeaGreen2",
+            'G': "RosyBrown1",
+            'F': "light goldenrod yellow"
+        }
+        self.color_mapping = [[(1 if val > 0 else val) if isinstance(val, int) else val[0] for val in row] for row in self.mat]
+        self.original_mat = [row[:] for row in self.mat]  
+        self.path_color = "DarkSeaGreen2" 
+        self.current_step = 0
 
     def read_input(self, file_name):
         time = 0
@@ -26,17 +39,18 @@ class Map:
                 mat.append([])
                 for idj, j in enumerate(i.split(' ')):
                     try:
-                        if j[0] in ['S', 'G']:
-                            map_dict[j[0]][j] = (idx, idj)
+                        if j[0] in ['S', 'G', 'F']:
+                            if j[0] == 'F':
+                                station.append(j)
+                            else:
+                                map_dict[j[0]][j] = (idx, idj)
                             mat[idx].append(j)
-                        if j[0] == 'F':
-                            station.append(j)
-                            mat[idx].append(j)
+                        
                         else:
                             mat[idx].append(int(j))
                     except:
                         print(f"\n\nError occured while reading data: ({idx}, {idj}) - \"{j}\"\n\n")
-                        break
+                        raise SystemExit
         return time, fuel, mat, agent, goal, station
 
     def level2(self, mat, time, start, end):
@@ -145,37 +159,35 @@ class Map:
             for j in range(cols):
                 canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill="white")
 
-    def draw_map(self, canvas, mat, cell_size):
-        color_mapping = {
-            0: "white",
-            -1: "LightSkyBlue4",
-            'S': "DarkSeaGreen2",
-            'G': "RosyBrown1",
-            'F': "light goldenrod yellow"
-        }
-        
+    def draw_map(self, canvas, mat, cell_size):        
         for i, row in enumerate(mat):
             for j, val in enumerate(row):
-                color = color_mapping.get(val if isinstance(val, int) else val[0], "SlateGray1")
-                canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill=color)
+                canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill=self.colors[self.color_mapping[i][j]])
                 if val not in [0, -1]:
                     canvas.create_text(j * cell_size + cell_size/2, i * cell_size + cell_size/2, text=val, fill="black", font=("Helvetica", cell_size//4))
 
-    def autorun(self, canvas, mat, cell_size):
-        pass
-
     def next_step(self, canvas, mat, cell_size, steps):
-        if not steps:
-            return
-        canvas.delete("all")
-        self.create_grid(canvas, len(mat), len(mat[0]), cell_size)
-        row, col = steps.pop(0)
-        mat[row][col] = 'S'
-        self.draw_map(canvas, mat, cell_size)
+        if self.current_step < len(steps):
+            canvas.delete("all")
+            self.create_grid(canvas, len(mat), len(mat[0]), cell_size)
+            
+            if self.current_step > 0:
+                prev_row, prev_col = steps[self.current_step - 1]
+                mat[prev_row][prev_col] = self.original_mat[prev_row][prev_col]
+            
+            row, col = steps[self.current_step]
+            mat[row][col] = 'S'
+            self.color_mapping[row][col] = 'S'
+            
+            self.draw_map(canvas, mat, cell_size)
+            self.current_step += 1
+
+    # def autorun():
+    #     root.after(1000, self.next_step, canvas, self.mat, cell_size, self.steps)
 
     def run(self):
         root = tk.Tk()
-        root.title("City Map GUI")
+        root.title("GUI")
 
         window_width = 800
         window_height = 600
@@ -191,7 +203,7 @@ class Map:
         button_frame = tk.Frame(root)
         button_frame.pack(fill="x")
 
-        autorun_button = tk.Button(button_frame, text="Autorun", command=lambda: self.autorun(canvas, self.mat, cell_size), width = window_width // 60,height=cell_size // 25, font=("Helvetica", cell_size // 4))
+        autorun_button = tk.Button(button_frame, text="Autorun", command=lambda: (root.after(1000, self.next_step, canvas, self.mat, cell_size, self.steps) for _ in self.steps), width = window_width // 60,height=cell_size // 25, font=("Helvetica", cell_size // 4))
         autorun_button.pack(side=tk.LEFT)
 
         next_step_button = tk.Button(button_frame, text="Update", command=lambda: self.next_step(canvas, self.mat, cell_size, self.steps), width= window_width//20,height=cell_size // 25, font=("Helvetica", cell_size // 4))
@@ -199,10 +211,8 @@ class Map:
 
         self.create_grid(canvas, rows, cols, cell_size)
         self.draw_map(canvas, self.mat, cell_size)
-
         root.mainloop()
 
 if __name__ == '__main__':
-    city_map = Map('input.txt')
-    print(city_map.mat)
-    city_map.run()
+    Map = Map('input.txt')
+    Map.run()
