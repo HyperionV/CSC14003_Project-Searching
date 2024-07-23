@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import Canvas
+from tkinter import PhotoImage
 import heapq
+from PIL import Image, ImageTk
+from tkinter import ttk
+import customtkinter as ctk
+from SearchAlgo import UCS, AStar, BFS, GBFS, DFS
 
 class Map:
     def __init__(self, file_name):
@@ -36,6 +41,21 @@ class Map:
                         print(f"\n\nError occured while reading data: ({idx}, {idj}) - \"{j}\"\n\n")
                         break
         return time, fuel, mat, agent, goal, station
+    
+    def level1(self, algorithm, adjacency_matrix, start_node, goal_node):
+        if algorithm == "DFS":
+            search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
+        elif algorithm == "UCS":
+            search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
+        elif algorithm == "AStar":
+            search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
+        elif algorithm == "BFS":
+            search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
+        elif algorithm == "GBFS":
+            search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
+        else:
+            raise ValueError("Invalid algorithm name")
+        return search_algo.Try()
 
     def level2(self, mat, time, start, end):
         distance_matrix = [[float('inf') for _ in range(len(mat[0]))] for _ in range(len(mat))]
@@ -138,6 +158,7 @@ class Map:
                     queue.append((next_row, next_col, cur_time + stay_time + refuel_time, next_fuel))
                     dis[next_row][next_col][next_fuel] = cur_time + 1
         return []
+    
 
     def create_grid(self, canvas, rows, cols, cell_size):
         for i in range(rows):
@@ -174,7 +195,7 @@ class Map:
 
     def run(self):
         root = tk.Tk()
-        root.title("City Map GUI")
+        root.title("GUI")
 
         window_width = 800
         window_height = 600
@@ -190,7 +211,7 @@ class Map:
         button_frame = tk.Frame(root)
         button_frame.pack(fill="x")
 
-        autorun_button = tk.Button(button_frame, text="Autorun", command=lambda: self.autorun(canvas, self.mat, cell_size), width = window_width // 60,height=cell_size // 25, font=("Helvetica", cell_size // 4))
+        autorun_button = tk.Button(button_frame, text="Autorun", command=lambda: (root.after(1000, self.next_step, canvas, self.mat, cell_size, self.steps) for _ in self.steps), width = window_width // 60,height=cell_size // 25, font=("Helvetica", cell_size // 4))
         autorun_button.pack(side=tk.LEFT)
 
         next_step_button = tk.Button(button_frame, text="Update", command=lambda: self.next_step(canvas, self.mat, cell_size, self.steps), width= window_width//20,height=cell_size // 25, font=("Helvetica", cell_size // 4))
@@ -198,23 +219,9 @@ class Map:
 
         self.create_grid(canvas, rows, cols, cell_size)
         self.draw_map(canvas, self.mat, cell_size)
-
         root.mainloop()
 
-# def level1(algorithm, adjacency_matrix, start_node, goal_node):
-#     if algorithm == "DFS":
-#         search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "UCS":
-#         search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "AStar":
-#         search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "BFS":
-#         search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "GBFS":
-#         search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
-#     else:
-#         raise ValueError("Invalid algorithm name")
-#     return search_algo.Try()
+
 
 if __name__ == '__main__':
     city_map = Map('input.txt')
