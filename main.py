@@ -25,7 +25,7 @@ class Map:
         self.original_mat = [row[:] for row in self.mat]  
         self.path_color = "DarkSeaGreen2" 
         self.current_step = 0
-        self.step4 = self.level4()
+        # self.step4 = self.level4()
 
     def read_input(self, file_name):
         time = 0
@@ -84,13 +84,10 @@ class Map:
                         if mat[nr][nc] == -1:
                             continue
                         prv_time = tmp_time - extra_time
-                        # print(' prv:', prv_time, mat[nr][nc], '   ', nr, nc)
                         if 0 <= nr < len(mat) and 0 <= nc < len(mat[0]) and distance_matrix[nr][nc][prv_time] < distance_matrix[row][col][tmp_time]:
                             row, col = nr, nc
                             tmp_time = prv_time
                             break
-                path.append(start)
-                # print('path:', path)
                 return path[::-1]
 
             for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -205,6 +202,7 @@ class Map:
                     dis[next_row][next_col] = curDis + 1
                     queue.append((next_row, next_col))
         return dis
+    
     def initIntrMap(self):
         for i in range(len(self.intrMap)):
             for j in range(len(self.intrMap[0])):
@@ -215,11 +213,13 @@ class Map:
                     if self.intrMap[i][j][0] != 'S':
                         self.intrMap[i][j] = 0
         return
+    
     def revert(self, revList):
         for info in revList:
             i, j, cell = info
             self.intrMap[i][j] = cell
         return
+    
     def findPath(self, start, end, fuel):
         # start = self.agent['S']
         # end = self.goal['G']
@@ -321,18 +321,21 @@ class Map:
                     path.append((nextRow, nextCol))
                     return path
         return -1
+    
     def findPos(self, cell):
         for i in range(len(self.intrMap)):
             for j in range(len(self.intrMap[0])):
                 if self.intrMap[i][j] == cell:
                     return (i, j)
         return -1
+    
     def findGoal(self, cell):
         for i in range(len(self.mat)):
             for j in range(len(self.mat[i])):
                 if self.mat[i][j] == cell:
                     return (i, j)
         return -1
+    
     def isGoal(self, idx): # S_i reached G_i
         start, goal = 'S', 'G'
         if idx > 0:
@@ -343,14 +346,17 @@ class Map:
                 if self.intrMap[i][j] == start and self.mat[i][j] == goal:
                     return True
         return False
+    
     def isStation(self, row, col):
         if isinstance(self.mat[row][col], str):
             if self.mat[row][col][0] == 'F':
                 return True
         return False
+    
     def goToCell(self, start, goal):
         self.intrMap[start[0]][start[1]], self.intrMap[goal[0]][goal[1]] = self.intrMap[goal[0]][goal[1]], self.intrMap[start[0]][start[1]]
         return
+    
     def generateNewGoal(self, idx):
         cellList = []
         goalLabel = 'G' + str(idx)
@@ -364,6 +370,7 @@ class Map:
         # print('num:', num, cellList[num])
         self.mat[cellList[num][0]][cellList[num][1]] = goalLabel
         return
+    
     def level4(self):
         fuelDis = self.getFuelDistance() # for heuristic
         # wall block goal
