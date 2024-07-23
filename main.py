@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import Canvas
-from tkinter import PhotoImage
-import heapq
 import random
 import copy
 from SearchAlgo import UCS, AStar, BFS, GBFS, DFS
