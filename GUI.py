@@ -2,12 +2,14 @@ from collections import defaultdict
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
+import pyglet
 
 
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("assets")
-
+pyglet.options['win32_gdi_font'] = True
+pyglet.font.add_file("fonts/Montserrat-Bold.ttf")
 class GUI:
     # constructor
     def __init__(self):
@@ -128,7 +130,6 @@ class GUI:
         # window.title("PathFinder")
         # window.geometry("1200x850")
         # window.configure(bg = "#171435")
-
 
         self.sidebar = Canvas(
             self.window,
@@ -362,4 +363,4 @@ class GUI:
         )
 
 
-# newGui = GUI()
+newGui = GUI()
