@@ -485,20 +485,6 @@ class Map:
         self.draw_map(canvas, self.mat, cell_size)
         root.mainloop()
 
-# def level1(algorithm, adjacency_matrix, start_node, goal_node):
-#     if algorithm == "DFS":
-#         search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "UCS":
-#         search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "AStar":
-#         search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "BFS":
-#         search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
-#     elif algorithm == "GBFS":
-#         search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
-#     else:
-#         raise ValueError("Invalid algorithm name")
-#     return search_algo.Try()
 
 if __name__ == '__main__':
     Map = Map('input.txt')
