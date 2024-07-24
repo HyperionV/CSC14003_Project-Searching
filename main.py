@@ -176,7 +176,7 @@ class Map:
                     # time to next cell = current time + stay time (lvl 2) + refuel time (if at station)
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
-        return -1
+        return []
 
     # for level 4
     def getFuelDistance(self):
