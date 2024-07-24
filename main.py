@@ -197,29 +197,6 @@ class Map:
         return -1
 
     # for level 4
-    def getFuelDistance(self):
-        dis = [[1e9 for x in range(len(self.mat[0]))] for y in range(len(self.mat))]
-        queue = []
-        for curStation in self.station:
-            i, j, time = curStation
-            dis[i][j] = 0
-            queue.append((i, j))
-        dx = [0, 1, 0, -1]
-        dy = [1, 0, -1, 0]
-        while bool(queue):
-            row, col = queue.pop(0)
-            curDis = dis[row][col]
-            for k in range(4):
-                next_row = row + dx[k]
-                next_col = col + dy[k]
-                if next_row < 0 or next_col < 0 or next_row >= len(self.mat) or next_col >= len(self.mat[0]):
-                    continue
-                if self.mat[next_row][next_col] == -1:
-                    continue
-                if curDis + 1 < dis[next_row][next_col]:
-                    dis[next_row][next_col] = curDis + 1
-                    queue.append((next_row, next_col))
-        return dis
     def initIntrMap(self):
         for i in range(len(self.intrMap)):
             for j in range(len(self.intrMap[0])):
@@ -380,7 +357,6 @@ class Map:
         self.mat[cellList[num][0]][cellList[num][1]] = goalLabel
         return
     def level4(self):
-        fuelDis = self.getFuelDistance() # for heuristic
         # wall block goal
         if self.level3() == -1:
             return -1
@@ -419,7 +395,6 @@ class Map:
                     if idx == 0:
                         break
                     self.generateNewGoal(idx)
-        #         print('AAAAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaAAAAAAAAAAAAAAAAAAA:')
         #         for row in self.intrMap:
         #             print(row)
         return path
