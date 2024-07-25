@@ -395,11 +395,17 @@ class Map:
                 else:
                     start = self.findPos(str('S' + str(idx)))
                     goal = self.findGoal(str('G' + str(idx)))
-                if self.isGoal(idx):
-                    continue
                 curPath = self.findPath(start, goal, fuel[idx])
                 if curPath == -1:
                     path[idx].append(path[idx][len(path[idx]) - 1])
+                    
+                    goalList.append([])
+                    for j in range(len(self.agent)):
+                        if j > 0:
+                            goalList[goalIdx].append((j, self.findGoal('G' + str(j))))
+                        else:
+                            goalList[goalIdx].append((j, self.findGoal('G')))
+                    goalIdx = goalIdx + 1
                     continue
                 self.goToCell(curPath[0], curPath[1])
                 # print('start, goal, fuel:', start, goal, fuel[idx], '  ', idx)
@@ -423,8 +429,8 @@ class Map:
         # print('path:', path)
         # for paths in path:
         #     print(paths)
-        # for lists in goalList:
-        #     print(lists)
+        for lists in goalList:
+            print(lists)
         return (path, goalList)
 
     def create_grid(self, canvas, rows, cols, cell_size):
