@@ -11,7 +11,7 @@ class Map:
         self.initIntrMap()
         self.steps = self.level2(self.mat, self.time, self.agent['S'], self.goal['G'])
         # self.step3 = self.level3()
-        # self.step4 = self.level4()
+        self.step4 = self.level4()
         
         self.colors = {
             0: "white",
@@ -360,19 +360,29 @@ class Map:
     def level4(self):
         # wall block goal
         if self.level3() == -1:
-            return -1
-        path = []
+            return (-1, -1)
+        path = [[] for _ in range(len(self.agent))]
+        goalList = []
+        for i in range(len(self.agent)):
+            pos = self.agent['S']
+            if i > 0:
+                pos = self.agent['S' + str(i)]
+            path[i].append(pos)
         fuel = [self.fuel for i in range(len(self.agent) + 5)]
         cnt = 0
+        goalIdx = 0
         while True:
-            cnt = cnt + 1
             if fuel[0] == 0:
-                path = -1
+                path = (-1, -1)
                 break
             if self.isGoal(0):
                 break
-            path.append((self.agent['S'][0], self.agent['S'][1]))
+            # path.append((self.agent['S'][0], self.agent['S'][1]))
+            # print('grid:')
+            # for row in self.intrMap:
+            #     print(row)
             for idx in range(len(self.agent)):
+                cnt = cnt + 1
                 start, goal = (-1, -1), (-1, -1)
                 if idx == 0:
                     start = self.findPos('S')
@@ -380,25 +390,43 @@ class Map:
                 else:
                     start = self.findPos(str('S' + str(idx)))
                     goal = self.findGoal(str('G' + str(idx)))
-                if self.isGoal(idx):
-                    continue
                 curPath = self.findPath(start, goal, fuel[idx])
                 if curPath == -1:
+                    path[idx].append(path[idx][len(path[idx]) - 1])
+                    
+                    goalList.append([])
+                    for j in range(len(self.agent)):
+                        if j > 0:
+                            goalList[goalIdx].append((j, self.findGoal('G' + str(j))))
+                        else:
+                            goalList[goalIdx].append((j, self.findGoal('G')))
+                    goalIdx = goalIdx + 1
                     continue
                 self.goToCell(curPath[0], curPath[1])
                 # print('start, goal, fuel:', start, goal, fuel[idx], '  ', idx)
                 fuel[idx] = fuel[idx] - 1
                 if self.isStation(curPath[1][0], curPath[1][1]):
                     fuel[idx] = self.fuel
-                if idx == 0:
-                    path.append(curPath[1])
+                path[idx].append(curPath[1])
                 if self.isGoal(idx):
                     if idx == 0:
                         break
                     self.generateNewGoal(idx)
+                goalList.append([])
+                for j in range(len(self.agent)):
+                    if j > 0:
+                        goalList[goalIdx].append((j, self.findGoal('G' + str(j))))
+                    else:
+                        goalList[goalIdx].append((j, self.findGoal('G')))
+                goalIdx = goalIdx + 1
         #         for row in self.intrMap:
         #             print(row)
-        return path
+        # print('path:', path)
+        # for paths in path:
+        #     print(paths)
+        for lists in goalList:
+            print(lists)
+        return (path, goalList)
 
     def create_grid(self, canvas, rows, cols, cell_size):
         for i in range(rows):
