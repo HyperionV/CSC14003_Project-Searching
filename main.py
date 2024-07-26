@@ -61,19 +61,14 @@ class Map:
         return time, fuel, mat, agent, goal, station
     
     def level1(self, algorithm, adjacency_matrix, start_node, goal_node):
-        if algorithm == "DFS":
-            search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "UCS":
-            search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "AStar":
-            search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "BFS":
-            search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "GBFS":
-            search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
-        else:
-            raise ValueError("Invalid algorithm name")
-        return search_algo.Try()
+        algorithms = {
+            "DFS": DFS.DFS,
+            "UCS": UCS.UCS,
+            "AStar": AStar.AStar,
+            "BFS": BFS.BFS,
+            "GBFS": GBFS.GBFS
+        }
+        return algorithms[algorithm](adjacency_matrix, start_node, goal_node).Try()
 
     def level2(self, mat, time, start, end):
         distance_matrix = [[[float('inf') for _ in range(self.time + 10)] for _ in range(len(mat[0]))] for _ in range(len(mat))]
