@@ -1,8 +1,9 @@
-from collections import defaultdict
 from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 import pyglet
+from Map import Map
+import time
 
 
 
@@ -13,6 +14,8 @@ pyglet.font.add_file("fonts/Montserrat-Bold.ttf")
 class GUI:
     # constructor
     def __init__(self):
+        self.path = None
+        self.goalList = None
         self.window = Tk()
         self.window.title("PathFinder")
         self.window.geometry("1200x850")
@@ -27,103 +30,143 @@ class GUI:
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
-    def read_input(self, file_name):
-            time = 0
-            fuel = 0
-            agent = {}
-            goal = {}
-            station = {}
-            mat = []
-            map_dict = {
-                'S': agent,
-                'G': goal,
-                'F': station
-            }
-            # check if can't open file
-            try:
-                with open(file_name, 'r') as i_file:
-                    _, _, time, fuel = [int(i) for i in i_file.readline().split(' ')]
-                    for idx, i in enumerate(i_file):
-                        i = i.strip()
-                        mat.append([])
-                        for idj, j in enumerate(i.split(' ')):
-                            try:
-                                if j[0] in ['S', 'G', 'F']:
-                                    map_dict[j[0]][j] = (idx, idj)
-                                    mat[idx].append(j)
-                                else:
-                                    mat[idx].append(int(j))
-                            except:
-                                print(f"\n\nError occured while reading data: ({idx}, {idj}) - \"{j}\"\n\n")
-                                return None, None, None, None, None, None
-                                # break
-            except FileNotFoundError:
-                print("The file was not found.")
-                return None, None, None, None, None, None
-            except IOError:
-                print("An IOError occurred while trying to open the file.")
-                return None, None, None, None, None, None
-            return time, fuel, mat, agent, goal, station
-
-    def draw_map(self, canvas, mat, cell_size):
-        color_mapping = {
-            0: "white",
-            -1: "LightSkyBlue4",
-            'S': "DarkSeaGreen2",
-            'G': "RosyBrown1",
-            'F': "light goldenrod yellow"
-        }
-        nrow = len(mat)
-        ncol = len(mat[0])
-        topMargin = (780 - nrow * cell_size) / 2
-        leftMargin = (900 - ncol * cell_size) / 2
-        for i, row in enumerate(mat):
-            for j, val in enumerate(row):
-                color = color_mapping.get(val if isinstance(val, int) else val[0], "SlateGray1")
-                canvas.create_rectangle(j * cell_size + leftMargin, i * cell_size + topMargin, (j + 1) * cell_size + leftMargin, (i + 1) * cell_size + topMargin, fill=color)
-                if val not in [0, -1]:
-                    canvas.create_text(j * cell_size + cell_size/2 + leftMargin, i * cell_size + cell_size/2 + topMargin, text=val, fill="black", font=("Helvetica", cell_size//4))
-
-
-
 
     def handle_button_press(self, btn_name):
-        if(btn_name == "reset"):
-            # check maze combobox
-            maze = self.maze_option.get()
-            if maze == "Read from file":
-                path = "input.txt"
-            elif maze == "Matrix 1":
-                path = "input1.txt"
-            elif maze == "Matrix 2":
-                path = "input2.txt"
-            elif maze == "Matrix 3":
-                path = "input3.txt"
-            elif maze == "Matrix 4":
-                path = "input4.txt"
-            elif maze == "Matrix 5":
-                path = "input5.txt"
-            time, fuel, mat, agent, goal, station = self.read_input(path)
-            if(time == None):
-                return
-            rows, cols = len(mat), len(mat[0])
-            cell_size = min(900 // cols, 800 // rows)
-            self.draw_map(self.canvas, mat, cell_size)
-        elif btn_name == "pauseresume":
+        if btn_name == "pauseresume":
             self.pauseresume_button_clicked()
+        elif btn_name == "update":
+            self.updateButtonClicked()
+        elif btn_name == "previous":
+            self.previousButtonClicked()
+        elif btn_name == "forward":
+            self.forwardButtonClicked()
+        
+    def handleLevel4(self, isForward):
+        if isForward:
+            totalStep = 0
+            for i in range (len(self.path)):
+                totalStep += len(self.path[i])
+            self.map.nextSteplvl4(totalStep)
+        else:
+            self.map.previousSteplvl4()
+        
+    def forwardButtonClicked(self):
+        if(self.path is not None):
+            if self.level != "Level 4":    
+                self.map.nextStep()
+            else:
+                self.handleLevel4(True)
+        
+    def previousButtonClicked(self):
+        if(self.path is not None):
+            if self.level != "Level 4":
+                self.map.previousStep()
+            else:
+                self.handleLevel4(False)
+            currentStep = self.map.getCurrentStep()
+            if(currentStep < 0):
+                    self.changePauseresumeState("pause")
             
-
-
-    # ~ FUNCTIONS FOR BUTTONS FOR CHANGING TABS ~
+    def updateButtonClicked(self):
+        # self.hidePathInfo()
+        self.changePauseresumeState("pause")
+        filePath = self.getMazeOption()
+        self.map.load(filePath)
+        self.level = self.level_option.get()
+        graph = self.graph_option.get()
+        if self.level != "Level 4":
+            self.path = self.map.getPath(self.level, graph)
+        else:
+            print("before")
+            self.path, self.goalList = self.map.getPath(self.level, graph)
+            print("after")
 
         
+    def getMazeOption(self):
+        maze = self.maze_option.get()
+        if maze == "Read from file":
+            path = "input.txt"
+        elif maze == "Matrix 1":
+            path = "input1.txt"
+        elif maze == "Matrix 2":
+            path = "input2.txt"
+        elif maze == "Matrix 3":
+            path = "input3.txt"
+        elif maze == "Matrix 4":
+            path = "input4.txt"
+        elif maze == "Matrix 5":
+            path = "input5.txt"
+        return path
+        
+    # ~ FUNCTIONS FOR BUTTONS FOR CHANGING TABS ~
+    def changePauseresumeState(self, state):
+        if state == "pause":
+            self.pauseresume_button.config(image=self.pause_image,text="Pause")
+        elif state == "resume":
+            self.pauseresume_button.config(image=self.resume_image,text="Resume")
+        
     def pauseresume_button_clicked(self):
-        if (self.pauseresume_button['text']=="Pause"):
-                self.pauseresume_button.config(image=self.resume_image,text="Resume")
-            
+        if(self.map.getCurrentStep() > 0 or self.path is None):
+            return
 
-        elif (self.pauseresume_button['text']=="Resume"):
-                self.pauseresume_button.config(image=self.pause_image,text="Pause")
+        
+        speed = self.speed_option.get()
+        autoSpeed = 1000
+        if(speed == "Medium"):
+            autoSpeed = 600
+        elif(speed == "Fast"):
+            autoSpeed = 200
+        self.pauseresume_button.config(image=self.resume_image,text="Resume") 
+        if(self.level == "Level 4"):
+            totalStep = 0
+            for i in range (len(self.path)):
+                totalStep += len(self.path[i])
+            self.map.autoRunlvl4(autoSpeed, totalStep)
+        else:
+            self.map.autoRun(autoSpeed)
+        # self.showPathInfo(12, 13, 14)
+        
+
+    def showPathInfo(self, pathCost, time, fuel):
+        informMessage = "Path found!"
+        if self.path is None:
+            informMessage = "Path not found!"
+        self.info.create_text(
+            33,
+            0,
+            anchor="nw",
+            text="Result: " + informMessage,
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+        self.info.create_text(
+            33,
+            30,
+            anchor="nw",
+            text="Path Cost: " + str(pathCost) + " cells",
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+        self.info.create_text(
+            33,
+            60.0,
+            anchor="nw",
+            text="Time: " + str(time),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+        self.info.create_text(
+            33,
+            90.0,
+            anchor="nw",
+            text="Fuel: " + str(fuel),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+    
+    def hidePathInfo(self):
+        self.info.delete("all")
+
 
     def init(self):
         # window = Tk()
@@ -149,14 +192,21 @@ class GUI:
             highlightthickness = 0,
             relief = "ridge"
         )
-
-
+        # self.info = Canvas(
+        #     self.window,
+        #     bg = '#171435',
+        #     height = 150,
+        #     width = 250,
+        #     bd = 0,
+        #     highlightthickness = 0,
+        #     relief = "ridge"
+        # )
+        
+        # self.info.place(x = 0, y = 650)
         self.sidebar.place(x= 0, y= 0)
         self.canvas.place(x = 270, y = 30)
-        time, fuel, mat, agent, goal, station = self.read_input("input.txt")
-        rows, cols = len(mat), len(mat[0])
-        cell_size = min(900 // cols, 800 // rows)
-        self.draw_map(self.canvas, mat, cell_size)
+        self.map = Map(self.canvas)
+        self.map.load('input.txt')
 
 
         self.sidebar.create_text(
@@ -257,7 +307,7 @@ class GUI:
         )
 
 
-        self.reset_button = Button(
+        self.update_button = Button(
                     self.sidebar, 
                     background= '#C67FFC',
                     height= 1,
@@ -268,12 +318,12 @@ class GUI:
                     activebackground= "WHITE", 
                     activeforeground= 'BLACK',
                     border= 0,
-                    text= 'Update maze/ reset',
+                    text= 'Update',
                     font= ("Montserrat-Bold", 14 * -1),
-                    command= lambda: self.handle_button_press("reset")
+                    command= lambda: self.handle_button_press("update")
                 )
 
-        self.reset_button.place(
+        self.update_button.place(
             x=38.0,
             y=490.0,
             width=182.0,
@@ -315,7 +365,7 @@ class GUI:
             borderwidth=0,
             bg="#171435",
             highlightthickness=0,
-            command=lambda: None,
+            command= lambda: self.handle_button_press("forward"),
             relief="flat"
         )
         self.Forward_button.place(
@@ -334,7 +384,7 @@ class GUI:
             borderwidth=0,
             bg="#171435",
             highlightthickness=0,
-            command=lambda: None,
+            command= lambda: self.handle_button_press("previous"),
             relief="flat"
         )
         self.Previous_button.place(
@@ -362,5 +412,4 @@ class GUI:
             font=("Montserrat-Bold", 9)
         )
 
-
-newGui = GUI()
+        
