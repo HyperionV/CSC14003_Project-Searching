@@ -14,7 +14,7 @@ class Map:
             -1: "LightSkyBlue4",
             1: "SlateGray1",
             'S': "DarkSeaGreen2",
-            'G': "RosyBrown1",
+            'G': "#FF6961",
             'F': "light goldenrod yellow"
         }
         self.path_color = "DarkSeaGreen2" 
@@ -37,12 +37,19 @@ class Map:
         self.goalList = None
         self.isForward = True
         self.getMaze(path)
-        self.color_mapping = [[(1 if val > 0 else val) if isinstance(val, int) else val[0] for val in row] for row in self.mat]
+        self.randomizeStartColor()
         self.intrMap = copy.deepcopy(self.mat)
         self.initIntrMap()
         self.original_mat = [row[:] for row in self.mat]  
         self.current_step = 0
         self.drawMap()
+
+    def randomizeStartColor(self):
+        colors = ["#AF6E4E", "#38908F", "#9DABDD", "#BC85A3", "#F0A35E", "#9E6B55", "#2E8364", "RosyBrown1"]
+        random.shuffle(colors)
+        for i in range(len(self.agent)):
+            if i > 0:
+                self.colors['S' + str(i)] = colors[i]
 
     
     def getMaze(self, file_name):
@@ -518,7 +525,11 @@ class Map:
         leftMargin = (900 - ncol * cell_size) / 2
         for i, row in enumerate(self.mat):
             for j, val in enumerate(row):
-                color = self.colors.get(val if isinstance(val, int) else val[0], "SlateGray1")
+                if 'S' in str(val) or isinstance(val, int):
+                    value = val
+                else:
+                    value = val[0]
+                color = self.colors.get(val if isinstance(val, int) else value, "SlateGray1")
                 self.canvas.create_rectangle(j * cell_size + leftMargin, i * cell_size + topMargin, (j + 1) * cell_size + leftMargin, (i + 1) * cell_size + topMargin, fill=color)
                 if val not in [0, -1]:
                     self.canvas.create_text(j * cell_size + cell_size/2 + leftMargin, i * cell_size + cell_size/2 + topMargin, text=val, fill="black", font=("Helvetica", cell_size//4))
@@ -530,13 +541,11 @@ class Map:
                 
                 row, col = self.path[self.current_step + 1]
                 self.mat[row][col] = 'S'
-                self.color_mapping[row][col] = 'S'
                 self.current_step += 2
                 self.isForward = True
             else:   
                     row, col = self.path[self.current_step]
                     self.mat[row][col] = 'S'
-                    self.color_mapping[row][col] = 'S'
                     self.current_step += 1
             self.drawMap()
 
@@ -547,14 +556,12 @@ class Map:
             if(self.isForward):
                 row, col = self.path[self.current_step - 1]
                 self.mat[row][col] = self.original_mat[row][col]
-                self.color_mapping[row][col] = self.mat[row][col]
                 self.current_step -= 2
                 self.isForward = False
                 
             else:
                     row, col = self.path[self.current_step]
                     self.mat[row][col] = self.original_mat[row][col]
-                    self.color_mapping[row][col] = self.mat[row][col]
                     self.current_step -= 1
             self.drawMap()
     
@@ -581,8 +588,8 @@ class Map:
                     self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' 
                 else:
                     self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' + str(S_turn)
-            currStep = min(len(self.goalList) + 5, curStep)
-            currStep -= 6
+            currStep = min(len(self.goalList) + len(self.path), curStep)
+            currStep -= len(self.path) + 1
             if(currStep < 0):
                 currStep = 0
             for j in range(len(self.goalList[0])):
@@ -596,7 +603,7 @@ class Map:
         
     def nextSteplvl4(self, toalSteps):
         if(self.current_step == 0):
-            self.current_step = 6
+            self.current_step = len(self.path) + 1
         if self.current_step <= toalSteps:
             self.canvas.delete("all")
             if(not self.isForward):
@@ -609,7 +616,7 @@ class Map:
             self.drawMap()
 
     def previousSteplvl4(self):
-        if self.current_step >= 5:
+        if self.current_step >= len(self.path):
             self.canvas.delete("all")
             if(self.isForward):
                 self.loadMatrixState(self.current_step - 2)

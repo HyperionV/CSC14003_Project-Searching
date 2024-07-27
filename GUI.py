@@ -61,12 +61,12 @@ class GUI:
             if self.level != "Level 4":
                 self.map.previousStep()
                 currentStep = self.map.getCurrentStep()
-                if(currentStep < 6):
+                if(currentStep < 1):
                         self.changePauseresumeState("pause")
             else:
                 self.handleLevel4(False)
                 currentStep = self.map.getCurrentStep()
-                if(currentStep < 0):
+                if(currentStep < len(self.path)):
                         self.changePauseresumeState("pause")  
             
             
@@ -111,8 +111,10 @@ class GUI:
             self.pauseresume_button.config(image=self.resume_image,text="Resume")
         
     def pauseresume_button_clicked(self):
+        if(self.path is None or self.path == -1):
+            return
         if(self.level == "Level 4"):
-            if(self.map.getCurrentStep() > 5):
+            if(self.map.getCurrentStep() > len(self.path)):
                 return
         else:    
             if(self.map.getCurrentStep() > 0  or self.path is None):
@@ -120,11 +122,11 @@ class GUI:
 
         
         speed = self.speed_option.get()
-        autoSpeed = 1000
+        autoSpeed = 300
         if(speed == "Medium"):
-            autoSpeed = 600
+            autoSpeed = 150
         elif(speed == "Fast"):
-            autoSpeed = 200
+            autoSpeed = 100
         self.pauseresume_button.config(image=self.resume_image,text="Resume") 
         if(self.level == "Level 4"):
             totalStep = 0
