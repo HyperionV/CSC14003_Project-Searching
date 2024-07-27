@@ -47,7 +47,7 @@ class Map:
         colors = ["#AF7E5E" ,"#AF6E4E", "#38908F", "#9DABDD", "#BC85A3", "#F0A35E", "#9E6B55", "#2E8364", "RosyBrown1"]
         random.shuffle(colors)
         for i in range(len(self.agent)):
-            if(i > len(colors)):
+            if(i >= len(colors)):
                 i = i % len(colors)
             if i > 0:
                 self.colors['S' + str(i)] = colors[i]
