@@ -151,7 +151,16 @@ class GUI:
             font=("Montserrat-Bold", 12 * -1)
         )
         fuel, time = self.map.getFuelAndTime()
-        if self.level == "Level 2":
+        if self.level == "Level 1" and self.path != -1:
+            self.info.create_text(
+            33,
+            20,
+            anchor="nw",
+            text="Path cost: " + str(len(self.path)),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+        elif self.level == "Level 2":
             self.info.create_text(
             33,
             20,
