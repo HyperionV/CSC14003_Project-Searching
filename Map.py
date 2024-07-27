@@ -141,7 +141,7 @@ class Map:
                     if cur_dis + 1 < distance_matrix[nr][nc][new_time]:
                         distance_matrix[nr][nc][new_time] = cur_dis + 1
                         queue.append((nr, nc, new_time))
-        return []
+        return -1
 
     def level3(self):
         # print('lvl3')
@@ -219,19 +219,19 @@ class Map:
                     # time to next cell = current time + stay time (lvl 2) + refuel time (if at station)
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
-        return []
+        return -1
 
     # for level 4
     def initIntrMap(self):
-        for i in range(len(self.intrMap)):
-            for j in range(len(self.intrMap[0])):
-                if isinstance(self.intrMap[i][j], int):
-                    if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
-                        self.intrMap[i][j] = 0
-                else:
-                    if self.intrMap[i][j][0] != 'S':
-                        self.intrMap[i][j] = 0
-        return
+            for i in range(len(self.intrMap)):
+                for j in range(len(self.intrMap[0])):
+                    if isinstance(self.intrMap[i][j], int):
+                        if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
+                            self.intrMap[i][j] = 0
+                    else:
+                        if self.intrMap[i][j][0] != 'S':
+                            self.intrMap[i][j] = 0
+            return
     
     def revert(self, revList):
         for info in revList:
@@ -455,11 +455,16 @@ class Map:
         #         for row in self.intrMap:
         #             print(row)
         # print('path:', path)
-        for paths in path:
-            print(paths)
+        # for paths in path:
+        #     print(paths)
         for lists in goalList:
             print(lists)
         return (path, goalList)
+
+    def create_grid(self, canvas, rows, cols, cell_size):
+        for i in range(rows):
+            for j in range(cols):
+                canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill="white")
 
     def createGrid(self):
         rows, cols = len(self.mat), len(self.mat[0])
@@ -604,13 +609,13 @@ class Map:
 
 
     def autoRun(self, speed):
-        if(self.current_step >= len(self.path)):
+        if(self.current_step >= len(self.path) or self.path is None):
             return
         self.nextStep()
         self.canvas.after(speed, self.autoRun, speed)
     
     def autoRunlvl4(self, speed, totalSteps):
-        if(self.current_step > totalSteps):
+        if(self.current_step > totalSteps or self.path is None):
             return
         self.nextSteplvl4(totalSteps)
         self.canvas.after(speed, self.autoRunlvl4, speed, totalSteps)

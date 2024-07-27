@@ -61,14 +61,20 @@ class GUI:
         if(self.path is not None):
             if self.level != "Level 4":
                 self.map.previousStep()
+                currentStep = self.map.getCurrentStep()
+                if(currentStep < 6):
+                        self.changePauseresumeState("pause")
             else:
                 self.handleLevel4(False)
-            currentStep = self.map.getCurrentStep()
-            if(currentStep < 0):
-                    self.changePauseresumeState("pause")
+                currentStep = self.map.getCurrentStep()
+                if(currentStep < 0):
+                        self.changePauseresumeState("pause")
+            
             
     def updateButtonClicked(self):
         # self.hidePathInfo()
+        self.path = None
+        self.goalList = None
         self.changePauseresumeState("pause")
         filePath = self.getMazeOption()
         self.map.load(filePath)
@@ -80,6 +86,8 @@ class GUI:
             print("before")
             self.path, self.goalList = self.map.getPath(self.level, graph)
             print("after")
+        
+        self.showPathInfo()
 
         
     def getMazeOption(self):
@@ -106,8 +114,12 @@ class GUI:
             self.pauseresume_button.config(image=self.resume_image,text="Resume")
         
     def pauseresume_button_clicked(self):
-        if(self.map.getCurrentStep() > 0 or self.path is None):
-            return
+        if(self.level == "Level 4"):
+            if(self.map.getCurrentStep() > 5):
+                return
+        else:    
+            if(self.map.getCurrentStep() > 0  or self.path is None):
+                return
 
         
         speed = self.speed_option.get()
@@ -127,9 +139,10 @@ class GUI:
         # self.showPathInfo(12, 13, 14)
         
 
-    def showPathInfo(self, pathCost, time, fuel):
+    def showPathInfo(self):
+        self.info.delete("all")
         informMessage = "Path found!"
-        if self.path is None:
+        if self.path == -1:
             informMessage = "Path not found!"
         self.info.create_text(
             33,
@@ -139,30 +152,7 @@ class GUI:
             fill="#FFFFFF",
             font=("Montserrat-Bold", 12 * -1)
         )
-        self.info.create_text(
-            33,
-            30,
-            anchor="nw",
-            text="Path Cost: " + str(pathCost) + " cells",
-            fill="#FFFFFF",
-            font=("Montserrat-Bold", 12 * -1)
-        )
-        self.info.create_text(
-            33,
-            60.0,
-            anchor="nw",
-            text="Time: " + str(time),
-            fill="#FFFFFF",
-            font=("Montserrat-Bold", 12 * -1)
-        )
-        self.info.create_text(
-            33,
-            90.0,
-            anchor="nw",
-            text="Fuel: " + str(fuel),
-            fill="#FFFFFF",
-            font=("Montserrat-Bold", 12 * -1)
-        )
+        
     
     def hidePathInfo(self):
         self.info.delete("all")
@@ -192,17 +182,17 @@ class GUI:
             highlightthickness = 0,
             relief = "ridge"
         )
-        # self.info = Canvas(
-        #     self.window,
-        #     bg = '#171435',
-        #     height = 150,
-        #     width = 250,
-        #     bd = 0,
-        #     highlightthickness = 0,
-        #     relief = "ridge"
-        # )
+        self.info = Canvas(
+            self.window,
+            bg = '#171435',
+            height = 150,
+            width = 250,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
         
-        # self.info.place(x = 0, y = 650)
+        self.info.place(x = 0, y = 650)
         self.sidebar.place(x= 0, y= 0)
         self.canvas.place(x = 270, y = 30)
         self.map = Map(self.canvas)
