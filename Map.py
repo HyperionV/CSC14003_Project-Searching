@@ -50,6 +50,9 @@ class Map:
             if i > 0:
                 self.colors['S' + str(i)] = colors[i]
     
+    def getFuelAndTime(self):
+        return self.fuel, self.time
+    
     def getMaze(self, file_name):
         self.time, self.fuel, self.mat, self.agent, self.goal, self.station = self.readInput(file_name)
 

@@ -17,7 +17,7 @@ class GUI:
         self.goalList = None
         self.level = "Level 1"
         self.window = Tk()
-        self.window.title("PathFinder")
+        self.window.title("Findin10Cent")
         self.window.geometry("1200x850")
         self.window.iconbitmap(self.relative_to_assets("icon2.ico"))
         self.window.configure(bg = "#171435")
@@ -150,6 +150,49 @@ class GUI:
             fill="#FFFFFF",
             font=("Montserrat-Bold", 12 * -1)
         )
+        fuel, time = self.map.getFuelAndTime()
+        if self.level == "Level 2":
+            self.info.create_text(
+            33,
+            20,
+            anchor="nw",
+            text="Constraint:",
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+            self.info.create_text(
+            43,
+            40,
+            anchor="nw",
+            text="Time: " + str(time),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+        elif self.level == "Level 3":
+            self.info.create_text(
+            33,
+            20,
+            anchor="nw",
+            text="Constraint:",
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+            self.info.create_text(
+            43,
+            40,
+            anchor="nw",
+            text="Time: " + str(time),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
+            self.info.create_text(
+            43,
+            60,
+            anchor="nw",
+            text="Fuel: " + str(fuel),
+            fill="#FFFFFF",
+            font=("Montserrat-Bold", 12 * -1)
+        )
         
     
     def hidePathInfo(self):
@@ -206,7 +249,7 @@ class GUI:
             font=("Montserrat-Bold", 12 * -1)
         )
         self.maze_option= ttk.Combobox(
-            values=["Read from file", "Matrix 1", "Matrix 2", "Matrix 3", "Matrix 4", "Matrix 5"],
+            values=["Matrix 1", "Matrix 2", "Matrix 3", "Matrix 4", "Matrix 5", "Read from file"],
             state="readonly",
             justify="center",
             font=("Montserrat-Bold", 14 * -1)
@@ -385,8 +428,16 @@ class GUI:
             30.0,
             25.0,
             anchor="nw",
-            text="PathFinder",
+            text="Findin",
             fill="#FFFFFF",
+            font=("Montserrat-Bold", 32 * -1)
+        )
+        self.sidebar.create_text(             
+            130.0,
+            25.0,
+            anchor="nw",
+            text="10Cent",
+            fill="yellow",
             font=("Montserrat-Bold", 32 * -1)
         )
         self.sidebar.create_text(             
