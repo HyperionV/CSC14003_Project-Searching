@@ -83,11 +83,9 @@ class GUI:
         if self.level != "Level 4":
             self.path = self.map.getPath(self.level, graph)
         else:
-            print("before")
             self.path, self.goalList = self.map.getPath(self.level, graph)
-            print("after")
-        
         self.showPathInfo()
+        
 
         
     def getMazeOption(self):
@@ -123,11 +121,11 @@ class GUI:
 
         
         speed = self.speed_option.get()
-        autoSpeed = 1000
+        autoSpeed = 200
         if(speed == "Medium"):
-            autoSpeed = 600
+            autoSpeed = 150
         elif(speed == "Fast"):
-            autoSpeed = 200
+            autoSpeed = 100
         self.pauseresume_button.config(image=self.resume_image,text="Resume") 
         if(self.level == "Level 4"):
             totalStep = 0
@@ -136,7 +134,7 @@ class GUI:
             self.map.autoRunlvl4(autoSpeed, totalStep)
         else:
             self.map.autoRun(autoSpeed)
-        # self.showPathInfo(12, 13, 14)
+        
         
 
     def showPathInfo(self):

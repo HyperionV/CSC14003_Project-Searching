@@ -223,15 +223,15 @@ class Map:
 
     # for level 4
     def initIntrMap(self):
-            for i in range(len(self.intrMap)):
-                for j in range(len(self.intrMap[0])):
-                    if isinstance(self.intrMap[i][j], int):
-                        if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
-                            self.intrMap[i][j] = 0
-                    else:
-                        if self.intrMap[i][j][0] != 'S':
-                            self.intrMap[i][j] = 0
-            return
+        for i in range(len(self.intrMap)):
+            for j in range(len(self.intrMap[0])):
+                if isinstance(self.intrMap[i][j], int):
+                    if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
+                        self.intrMap[i][j] = 0
+                else:
+                    if self.intrMap[i][j][0] != 'S':
+                        self.intrMap[i][j] = 0
+        return
     
     def revert(self, revList):
         for info in revList:
