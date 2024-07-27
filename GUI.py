@@ -71,14 +71,13 @@ class GUI:
             
             
     def updateButtonClicked(self):
-        print(self.level)
         # self.hidePathInfo()
         self.path = None
         self.goalList = None
         self.changePauseresumeState("pause")
+        self.level = self.level_option.get()
         filePath = self.getMazeOption()
         self.map.load(filePath)
-        self.level = self.level_option.get()
         graph = self.graph_option.get()
         if self.level != "Level 4":
             self.path = self.map.getPath(self.level, graph)
