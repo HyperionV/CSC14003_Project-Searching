@@ -213,6 +213,8 @@ class Map:
                 else:
                     stay_time = max(stay_time, self.mat[next_row][next_col] + 1)
                 total_time = cur_time + stay_time + refuel_time
+                if total_time > self.time:
+                    continue
                 if cur_dis + 1 < dis[next_row][next_col][total_time][next_fuel]:
                     # time to next cell = current time + stay time (lvl 2) + refuel time (if at station)
                     queue.append((next_row, next_col, total_time, next_fuel))
@@ -238,6 +240,7 @@ class Map:
         return
     
     def findPath(self, start, end, fuel):
+        print('findPath:', start, end, fuel)
         dis = [[[[1e9 for _ in range(self.fuel + 10)] for _ in range(self.time + 10)] for _ in range(len(self.intrMap[0]))] for _ in range(len(self.intrMap))]
         # print('fuel:', fuel, self.fuel)
         dis[start[0]][start[1]][0][fuel] = 0
@@ -407,6 +410,7 @@ class Map:
         return
     
     def level4(self):
+        print('level4')
         if self.level3() == -1:
             return (-1, -1)
         path = [[] for _ in range(len(self.agent))]
@@ -421,9 +425,9 @@ class Map:
         goalIdx = 0
         while True:
             # print('cnt:', cnt)
-            for idx in range(len(self.agent)):
-                print(path[idx][len(path[idx]) - 1], ' ', end = '')
-            print('\n')
+            # for idx in range(len(self.agent)):
+            #     print(path[idx][len(path[idx]) - 1], ' ', end = '')
+            # print('\n')
 
             if fuel[0] == 0:
                 path, goalList = -1, -1
@@ -481,10 +485,10 @@ class Map:
         #         for row in self.intrMap:
         #             print(row)
         # print('path:', path)
-        for i in range(len(path)):
-            print('path:', i, ' ' , len(path[i]))
-            for j in range(len(path[i])):
-                print(path[i][j], end = ' ')
+        # for i in range(len(path)):
+        #     print('path:', i, ' ' , len(path[i]))
+        #     for j in range(len(path[i])):
+        #         print(path[i][j], end = ' ')
         # for lists in goalList:
         #     print(lists)
 
