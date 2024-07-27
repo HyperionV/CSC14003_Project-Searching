@@ -1,18 +1,14 @@
-import tkinter as tk
-from tkinter import Canvas
 import random
 import copy
 from SearchAlgo import UCS, AStar, BFS, GBFS, DFS
+from tkinter import PhotoImage
 
 class Map:
-    def __init__(self, file_name):
-        self.time, self.fuel, self.mat, self.agent, self.goal, self.station = self.read_input(file_name)
-        self.intrMap = copy.deepcopy(self.mat)
-        self.initIntrMap()
-        self.steps = self.level2(self.mat, self.time, self.agent['S'], self.goal['G'])
-        # self.step3 = self.level3()
-        self.step4 = self.level4()
-        
+    def __init__(self, canvas):
+        self.path = None
+        self.goalList = None
+        self.isForward = True
+        self.canvas = canvas
         self.colors = {
             0: "white",
             -1: "LightSkyBlue4",
@@ -21,13 +17,38 @@ class Map:
             'G': "RosyBrown1",
             'F': "light goldenrod yellow"
         }
-        self.color_mapping = [[(1 if val > 0 else val) if isinstance(val, int) else val[0] for val in row] for row in self.mat]
-        self.original_mat = [row[:] for row in self.mat]  
         self.path_color = "DarkSeaGreen2" 
-        self.current_step = 0
-        # self.step4 = self.level4()
 
-    def read_input(self, file_name):
+        
+    def getPath(self, level, algorithm_name = None):
+        if(level == "Level 1"):
+            self.path =  self.level1(algorithm_name)
+        elif(level == "Level 2"):
+            self.path =  self.level2()
+        elif(level == "Level 3"):
+            self.path =  self.level3()
+        elif(level == "Level 4"):
+            self.path, self.goalList =  self.level4()
+            return self.path, self.goalList
+        return self.path
+        
+    def load(self, path):
+        self.path = None
+        self.goalList = None
+        self.isForward = True
+        self.getMaze(path)
+        self.color_mapping = [[(1 if val > 0 else val) if isinstance(val, int) else val[0] for val in row] for row in self.mat]
+        self.intrMap = copy.deepcopy(self.mat)
+        self.initIntrMap()
+        self.original_mat = [row[:] for row in self.mat]  
+        self.current_step = 0
+        self.drawMap()
+
+    
+    def getMaze(self, file_name):
+        self.time, self.fuel, self.mat, self.agent, self.goal, self.station = self.readInput(file_name)
+
+    def readInput(self, file_name):
         time = 0
         fuel = 0
         agent = {}
@@ -60,22 +81,27 @@ class Map:
         # print('goal:', goal, len(goal))
         return time, fuel, mat, agent, goal, station
     
-    def level1(self, algorithm, adjacency_matrix, start_node, goal_node):
-        if algorithm == "DFS":
-            search_algo = DFS.DFS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "UCS":
-            search_algo = UCS.UCS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "AStar":
-            search_algo = AStar.AStar(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "BFS":
-            search_algo = BFS.BFS(adjacency_matrix, start_node, goal_node)
-        elif algorithm == "GBFS":
-            search_algo = GBFS.GBFS(adjacency_matrix, start_node, goal_node)
-        else:
-            raise ValueError("Invalid algorithm name")
-        return search_algo.Try()
+    def level1(self, algorithm):
+        adjacency_matrix = self.mat
+        start_node = self.agent['S']
+        goal_node = self.goal['G']
+        algorithms = {
+            "Depth First Search": DFS.DFS,
+            "Uniform Cost Search": UCS.UCS,
+            "A*": AStar.AStar,
+            "Breadth First Search": BFS.BFS,
+            "Greedy Best First Search": GBFS.GBFS
+        }
+        # try:
+        return algorithms[algorithm](adjacency_matrix, start_node, goal_node).Try()
+        # except:
+        #     raise ValueError("Invalid algorithm name")
 
-    def level2(self, mat, time, start, end):
+    def level2(self):
+        mat = self.mat
+        time = self.time
+        start = self.agent['S']
+        end = self.goal['G']
         distance_matrix = [[[float('inf') for _ in range(self.time + 10)] for _ in range(len(mat[0]))] for _ in range(len(mat))]
         distance_matrix[start[0]][start[1]][0] = 0
         queue = [(start[0], start[1], 0)] 
@@ -113,7 +139,7 @@ class Map:
                     if cur_dis + 1 < distance_matrix[nr][nc][new_time]:
                         distance_matrix[nr][nc][new_time] = cur_dis + 1
                         queue.append((nr, nc, new_time))
-        return []
+        return -1
 
     def level3(self):
         # print('lvl3')
@@ -191,19 +217,19 @@ class Map:
                     # time to next cell = current time + stay time (lvl 2) + refuel time (if at station)
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
-        return []
+        return -1
 
     # for level 4
     def initIntrMap(self):
-        for i in range(len(self.intrMap)):
-            for j in range(len(self.intrMap[0])):
-                if isinstance(self.intrMap[i][j], int):
-                    if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
-                        self.intrMap[i][j] = 0
-                else:
-                    if self.intrMap[i][j][0] != 'S':
-                        self.intrMap[i][j] = 0
-        return
+            for i in range(len(self.intrMap)):
+                for j in range(len(self.intrMap[0])):
+                    if isinstance(self.intrMap[i][j], int):
+                        if self.intrMap[i][j] != 0 and self.intrMap[i][j] != -1:
+                            self.intrMap[i][j] = 0
+                    else:
+                        if self.intrMap[i][j][0] != 'S':
+                            self.intrMap[i][j] = 0
+            return
     
     def revert(self, revList):
         for info in revList:
@@ -212,8 +238,6 @@ class Map:
         return
     
     def findPath(self, start, end, fuel):
-        # start = self.agent['S']
-        # end = self.goal['G']
         dis = [[[[1e9 for _ in range(self.fuel + 10)] for _ in range(self.time + 10)] for _ in range(len(self.intrMap[0]))] for _ in range(len(self.intrMap))]
         # print('fuel:', fuel, self.fuel)
         dis[start[0]][start[1]][0][fuel] = 0
@@ -257,9 +281,6 @@ class Map:
                         extra_time = self.mat[row][col] + 1
                     elif self.mat[row][col][0] == 'F':
                         extra_time = (int(self.mat[row][col][1:len(self.mat[row][col])])) + 1
-                    # print('      extr:', extra_time, 'row, col:', row, col, tmp_time)
-                    # if row == 6 and col == 1:
-                    #     exit(0)
                     for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         nr, nc = row + dr, col + dc
                         if 0 <= nr < len(self.intrMap) and 0 <= nc < len(self.intrMap[0]):
@@ -274,7 +295,6 @@ class Map:
                                 tmp_fuel = tmp_fuel + 1
                                 tmp_time = prv_time
                                 break
-                            # With station (refuel)
                             elif tmp_fuel == self.fuel:
                                 # print('    case2')
                                 found_path = False
@@ -288,7 +308,6 @@ class Map:
                                 if found_path == True:
                                     break
                 path.append(start)
-                # print('4path:', path)
                 self.revert(tmpWall)
                 return path[::-1]
             
@@ -311,7 +330,7 @@ class Map:
                 else:
                     stay_time = max(stay_time, self.mat[next_row][next_col] + 1)
                 total_time = cur_time + stay_time + refuel_time
-                if total_time > self.time:
+                if total_time > self.time: 
                     continue
                 if cur_dis + 1 < dis[next_row][next_col][total_time][next_fuel]:
                     queue.append((next_row, next_col, total_time, next_fuel))
@@ -352,7 +371,7 @@ class Map:
                     return (i, j)
         return -1
     
-    def isGoal(self, idx): # S_i reached G_i
+    def isGoal(self, idx):
         start, goal = 'S', 'G'
         if idx > 0:
             start = str('S' + str(idx))
@@ -383,12 +402,10 @@ class Map:
                 if self.mat[i][j] == goalLabel:
                     self.mat[i][j] = 0
         num = random.randint(0, len(cellList) - 1)
-        # print('num:', num, cellList[num])
         self.mat[cellList[num][0]][cellList[num][1]] = goalLabel
         return
     
     def level4(self):
-        # wall block goal
         if self.level3() == -1:
             return (-1, -1)
         path = [[] for _ in range(len(self.agent))]
@@ -472,61 +489,137 @@ class Map:
             for j in range(cols):
                 canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill="white")
 
-    def draw_map(self, canvas, mat, cell_size):        
-        for i, row in enumerate(mat):
+    def createGrid(self):
+        rows, cols = len(self.mat), len(self.mat[0])
+        topMargin = (780 - rows * cell_size) / 2
+        leftMargin = (900 - cols * cell_size) / 2
+        cell_size = min(900 // cols, 800 // rows)
+        for i in range(rows):
+            for j in range(cols):
+                self.canvas.create_rectangle(j * cell_size + leftMargin, i * cell_size + topMargin, (j + 1) * cell_size + leftMargin, (i + 1) * cell_size  + topMargin, fill="white")
+
+    def drawMap(self):
+        self.canvas.delete("all")
+        rows, cols = len(self.mat), len(self.mat[0])
+        cell_size = min(900 // cols, 800 // rows)
+        nrow = len(self.mat)
+        ncol = len(self.mat[0])
+        topMargin = (780 - nrow * cell_size) / 2
+        leftMargin = (900 - ncol * cell_size) / 2
+        for i, row in enumerate(self.mat):
             for j, val in enumerate(row):
-                canvas.create_rectangle(j * cell_size, i * cell_size, (j + 1) * cell_size, (i + 1) * cell_size, fill=self.colors[self.color_mapping[i][j]])
+                color = self.colors.get(val if isinstance(val, int) else val[0], "SlateGray1")
+                self.canvas.create_rectangle(j * cell_size + leftMargin, i * cell_size + topMargin, (j + 1) * cell_size + leftMargin, (i + 1) * cell_size + topMargin, fill=color)
                 if val not in [0, -1]:
-                    canvas.create_text(j * cell_size + cell_size/2, i * cell_size + cell_size/2, text=val, fill="black", font=("Helvetica", cell_size//4))
+                    self.canvas.create_text(j * cell_size + cell_size/2 + leftMargin, i * cell_size + cell_size/2 + topMargin, text=val, fill="black", font=("Helvetica", cell_size//4))
 
-    def next_step(self, canvas, mat, cell_size, steps):
-        if self.current_step < len(steps):
-            canvas.delete("all")
-            self.create_grid(canvas, len(mat), len(mat[0]), cell_size)
-            
-            if self.current_step > 0:
-                prev_row, prev_col = steps[self.current_step - 1]
-                mat[prev_row][prev_col] = self.original_mat[prev_row][prev_col]
-            
-            row, col = steps[self.current_step]
-            mat[row][col] = 'S'
-            self.color_mapping[row][col] = 'S'
-            
-            self.draw_map(canvas, mat, cell_size)
+    def nextStep(self):
+        if self.current_step < len(self.path):
+            self.canvas.delete("all")
+            if(not self.isForward):
+                
+                row, col = self.path[self.current_step + 1]
+                self.mat[row][col] = 'S'
+                self.color_mapping[row][col] = 'S'
+                self.current_step += 2
+                self.isForward = True
+            else:   
+                    row, col = self.path[self.current_step]
+                    self.mat[row][col] = 'S'
+                    self.color_mapping[row][col] = 'S'
+                    self.current_step += 1
+            self.drawMap()
+
+
+    def previousStep(self):
+        if self.current_step >= 0:
+            self.canvas.delete("all")
+            if(self.isForward):
+                row, col = self.path[self.current_step - 1]
+                self.mat[row][col] = self.original_mat[row][col]
+                self.color_mapping[row][col] = self.mat[row][col]
+                self.current_step -= 2
+                self.isForward = False
+                
+            else:
+                    row, col = self.path[self.current_step]
+                    self.mat[row][col] = self.original_mat[row][col]
+                    self.color_mapping[row][col] = self.mat[row][col]
+                    self.current_step -= 1
+            self.drawMap()
+    
+    def loadMatrixState(self, curStep):
+        print('curStep:', curStep)
+        total_steps = 0
+        for i in range(len(self.path)):
+            total_steps += len(self.path[i])
+        if(curStep >= 0 and curStep <= total_steps):
+            for i in range(len(self.mat)):
+                for j in range(len(self.mat[0])):
+                    # check if cell not start or goal
+                    if 'S' not in str(self.original_mat[i][j]) and 'G' not in str(self.original_mat[i][j]):
+                        self.mat[i][j] = self.original_mat[i][j]
+                    else:
+                        self.mat[i][j] = 0
+
+            for i in range (0, curStep):
+                S_index = int(i / len(self.path))
+                S_turn = i % len(self.path)
+
+                if(S_turn == 0):
+                    self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' 
+                else:
+                    self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' + str(S_turn)
+            currStep = min(len(self.goalList) + 5, curStep)
+            currStep -= 6
+            if(currStep < 0):
+                currStep = 0
+            for j in range(len(self.goalList[0])):
+                goal = self.goalList[currStep][j][1]
+                if(j == 0):
+                    self.mat[goal[0]][goal[1]] = 'G'
+                else:
+                    self.mat[goal[0]][goal[1]] = 'G' + str(j)
+        return
+
+        
+    def nextSteplvl4(self, toalSteps):
+        if(self.current_step == 0):
+            self.current_step = 6
+        if self.current_step <= toalSteps:
+            self.canvas.delete("all")
+            if(not self.isForward):
+                self.loadMatrixState(self.current_step + 2)
+                self.current_step += 2
+                self.isForward = True
+            else:
+                self.loadMatrixState(self.current_step)
             self.current_step += 1
+            self.drawMap()
 
-    # def autorun():
-    #     root.after(1000, self.next_step, canvas, self.mat, cell_size, self.steps)
+    def previousSteplvl4(self):
+        if self.current_step >= 5:
+            self.canvas.delete("all")
+            if(self.isForward):
+                self.loadMatrixState(self.current_step - 2)
+                self.current_step -= 2
+                self.isForward = False
+            else:
+                self.loadMatrixState(self.current_step)
+            self.current_step -= 1
+            self.drawMap()
 
-    def run(self):
-        root = tk.Tk()
-        root.title("GUI")
+    def autoRun(self, speed):
+        if(self.current_step >= len(self.path) or self.path is None):
+            return
+        self.nextStep()
+        self.canvas.after(speed, self.autoRun, speed)
+    
+    def autoRunlvl4(self, speed, totalSteps):
+        if(self.current_step > totalSteps or self.path is None):
+            return
+        self.nextSteplvl4(totalSteps)
+        self.canvas.after(speed, self.autoRunlvl4, speed, totalSteps)
 
-        window_width = 800
-        window_height = 600
-
-        rows = len(self.mat)
-        cols = len(self.mat[0]) if rows > 0 else 0
-
-        cell_size = min(window_width // cols, window_height // rows)
-
-        canvas = Canvas(root, width=cols * cell_size, height=rows * cell_size)
-        canvas.pack(fill="both", expand=True) 
-
-        button_frame = tk.Frame(root)
-        button_frame.pack(fill="x")
-
-        autorun_button = tk.Button(button_frame, text="Autorun", command=lambda: (root.after(1000, self.next_step, canvas, self.mat, cell_size, self.steps) for _ in self.steps), width = window_width // 60,height=cell_size // 25, font=("Helvetica", cell_size // 4))
-        autorun_button.pack(side=tk.LEFT)
-
-        next_step_button = tk.Button(button_frame, text="Update", command=lambda: self.next_step(canvas, self.mat, cell_size, self.steps), width= window_width//20,height=cell_size // 25, font=("Helvetica", cell_size // 4))
-        next_step_button.pack(side=tk.LEFT)
-
-        self.create_grid(canvas, rows, cols, cell_size)
-        self.draw_map(canvas, self.mat, cell_size)
-        root.mainloop()
-
-
-if __name__ == '__main__':
-    Map = Map('input.txt')
-    Map.run()
+    def getCurrentStep(self):
+        return self.current_step

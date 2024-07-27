@@ -28,5 +28,5 @@ class AStar(SearchAlgorithm):
                             newGCost = cost + 1
                             fCost = cost + 1 + manhattan_distance(neighbor, self.end)
                             heapq.heappush(queue, (fCost, newGCost, neighbor, newPath))
-        return None  # no path found
+        return -1  # no path found
         

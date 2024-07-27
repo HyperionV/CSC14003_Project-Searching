@@ -34,4 +34,4 @@ class GBFS(SearchAlgorithm):
                         heuristic = manhattan_distance(neighbor, self.end)
                         heapq.heappush(priority_queue, (heuristic, neighbor))
         
-        return None  # No path found
+        return -1  # No path found

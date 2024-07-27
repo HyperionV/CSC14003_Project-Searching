@@ -28,4 +28,4 @@ class DFS(SearchAlgorithm):
 
         
         # Reconstruct the path and calculate the cost
-        return None
+        return -1
