@@ -27,4 +27,4 @@ class BFS(SearchAlgorithm):
                         queue.append(neighbor)
                         visited.add(neighbor)
                     
-        return None
+        return -1
