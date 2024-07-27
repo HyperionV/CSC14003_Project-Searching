@@ -18,7 +18,6 @@ class Map:
             'F': "light goldenrod yellow"
         }
         self.path_color = "DarkSeaGreen2" 
-
         
     def getPath(self, level, algorithm_name = None):
         if(level == "Level 1"):
@@ -50,7 +49,6 @@ class Map:
         for i in range(len(self.agent)):
             if i > 0:
                 self.colors['S' + str(i)] = colors[i]
-
     
     def getMaze(self, file_name):
         self.time, self.fuel, self.mat, self.agent, self.goal, self.station = self.readInput(file_name)
@@ -191,7 +189,7 @@ class Map:
                             # With station (refuel)
                             elif tmp_fuel == self.fuel:
                                 found_path = False
-                                for pre_fuel in range(self.fuel):
+                                for pre_fuel in range(self.fuel + 1):
                                     if dis[nr][nc][prv_time][pre_fuel] < dis[row][col][tmp_time][tmp_fuel]:
                                         found_path = True
                                         tmp_fuel = pre_fuel
@@ -227,7 +225,6 @@ class Map:
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
         return -1
-
     # for level 4
     def initIntrMap(self):
             for i in range(len(self.intrMap)):
@@ -284,6 +281,7 @@ class Map:
                 # print('    last_time:', tmp_time)
                 cnt = 0
                 while (row, col) != start:
+                    print('    ', row, col, '   ', dis[row][col][tmp_time][tmp_fuel], '   ', tmp_time, tmp_fuel)
                     cnt += 1
                     path.append((row, col))
                     extra_time = 1
@@ -306,9 +304,9 @@ class Map:
                                 tmp_time = prv_time
                                 break
                             elif tmp_fuel == self.fuel:
-                                # print('    case2')
+                                print('    case2')
                                 found_path = False
-                                for pre_fuel in range(self.fuel):
+                                for pre_fuel in range(self.fuel + 1):
                                     if dis[nr][nc][prv_time][pre_fuel] < dis[row][col][tmp_time][tmp_fuel]:
                                         found_path = True
                                         tmp_fuel = pre_fuel
@@ -432,9 +430,9 @@ class Map:
         goalIdx = 0
         while True:
             # print('cnt:', cnt)
-            # for idx in range(len(self.agent)):
-            #     print(path[idx][len(path[idx]) - 1], ' ', end = '')
-            # print('\n')
+            for idx in range(len(self.agent)):
+                print(path[idx][len(path[idx]) - 1], ' ', end = '')
+            print('\n')
 
             if fuel[0] == 0:
                 path, goalList = -1, -1
@@ -445,7 +443,7 @@ class Map:
             # for row in self.intrMap:
             #     print(row)
             for idx in range(len(self.agent)):
-                # print('\n idx:', idx)
+                print('\n idx:', idx)
 
                 cnt = cnt + 1
                 start, goal = (-1, -1), (-1, -1)
@@ -548,7 +546,6 @@ class Map:
                     self.mat[row][col] = 'S'
                     self.current_step += 1
             self.drawMap()
-
 
     def previousStep(self):
         if self.current_step >= 0:
