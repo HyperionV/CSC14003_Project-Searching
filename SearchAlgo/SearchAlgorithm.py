@@ -20,7 +20,7 @@ class SearchAlgorithm:
         path.reverse()
         
         if path[0] != self.start:  # If start node is not in the path, no path exists
-            return None
+            return -1
     
         return path
 
