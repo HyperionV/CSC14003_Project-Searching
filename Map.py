@@ -338,7 +338,7 @@ class Map:
                     # print('  reach:', next_row, next_col, total_time, next_fuel)
                     # if next_row == 11 and next_col == 1:
                     #     print('dis:', total_time, next_fuel, dis[next_row][next_col][total_time][next_fuel])
-        self.revert(tmpWall)
+        
         # if self.isStation(start[0], start[1]):
         validCell = []
         for k in range(4):
@@ -350,6 +350,7 @@ class Map:
                 if isinstance(self.mat[nextRow][nextCol], int):
                     validCell.append((nextRow, nextCol))
         # num = random.randint(0, len(validCell) - 1)
+        self.revert(tmpWall)
         if len(validCell) > 0:
             path = []
             path.append(start)
@@ -420,11 +421,12 @@ class Map:
         goalIdx = 0
         while True:
             # print('cnt:', cnt)
-            # for idx in range(len(self.agent)):
-            #     print(path[idx][len(path[idx]) - 1], ' ', end = '')
-            # print('\n')
+            for idx in range(len(self.agent)):
+                print(path[idx][len(path[idx]) - 1], ' ', end = '')
+            print('\n')
+
             if fuel[0] == 0:
-                path = (-1, -1)
+                path, goalList = -1, -1
                 break
             if self.isGoal(0):
                 break
@@ -443,6 +445,7 @@ class Map:
                     start = self.findPos(str('S' + str(idx)))
                     goal = self.findGoal(str('G' + str(idx)))
                 if fuel[idx] == 0:
+                    path[idx].append(path[idx][len(path[idx]) - 1])
                     continue
                 # print('idx:', idx)
                 curPath = self.findPath(start, goal, fuel[idx])
@@ -478,10 +481,13 @@ class Map:
         #         for row in self.intrMap:
         #             print(row)
         # print('path:', path)
-        # for paths in path:
-        #     print(paths)
+        for i in range(len(path)):
+            print('path:', i, ' ' , len(path[i]))
+            for j in range(len(path[i])):
+                print(path[i][j], end = ' ')
         # for lists in goalList:
         #     print(lists)
+
         return (path, goalList)
 
     def create_grid(self, canvas, rows, cols, cell_size):
@@ -565,6 +571,7 @@ class Map:
             for i in range (0, curStep):
                 S_index = int(i / len(self.path))
                 S_turn = i % len(self.path)
+                # print('S_index:', S_index, '  S_turn:', S_turn, 'len: ', len(self.path[S_turn]))
 
                 if(S_turn == 0):
                     self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' 
