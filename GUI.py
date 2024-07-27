@@ -3,19 +3,19 @@ from tkinter import *
 from tkinter import ttk
 import pyglet
 from Map import Map
-import time
-
 
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("assets")
 pyglet.options['win32_gdi_font'] = True
 pyglet.font.add_file("fonts/Montserrat-Bold.ttf")
+
 class GUI:
     # constructor
     def __init__(self):
         self.path = None
         self.goalList = None
+        self.level = "Level 1"
         self.window = Tk()
         self.window.title("PathFinder")
         self.window.geometry("1200x850")
@@ -24,9 +24,8 @@ class GUI:
         self.init()
         self.window.resizable(False, False)
         self.window.mainloop()
+        self.currLevel = "Level 1"
         
-
-
     def relative_to_assets(self, path: str) -> Path:
         return ASSETS_PATH / Path(path)
 
@@ -68,10 +67,11 @@ class GUI:
                 self.handleLevel4(False)
                 currentStep = self.map.getCurrentStep()
                 if(currentStep < 0):
-                        self.changePauseresumeState("pause")
+                        self.changePauseresumeState("pause")  
             
             
     def updateButtonClicked(self):
+        print(self.level)
         # self.hidePathInfo()
         self.path = None
         self.goalList = None
@@ -91,20 +91,17 @@ class GUI:
 
         
     def getMazeOption(self):
+        pre = ''.join(self.level.split(' ')).lower() + '.txt'
         maze = self.maze_option.get()
-        if maze == "Read from file":
-            path = "input.txt"
-        elif maze == "Matrix 1":
-            path = "input1.txt"
-        elif maze == "Matrix 2":
-            path = "input2.txt"
-        elif maze == "Matrix 3":
-            path = "input3.txt"
-        elif maze == "Matrix 4":
-            path = "input4.txt"
-        elif maze == "Matrix 5":
-            path = "input5.txt"
-        return path
+        path = {
+            "Matrix 1": "input1_",
+            "Matrix 2": "input2_",
+            "Matrix 3": "input3_",
+            "Matrix 4": "input4_",
+            "Matrix 5": "input5_",
+            "Read from file": "input.txt"
+        }
+        return path.get(maze) + pre if maze != "Read from file" else path.get(maze)
         
     # ~ FUNCTIONS FOR BUTTONS FOR CHANGING TABS ~
     def changePauseresumeState(self, state):
@@ -213,9 +210,7 @@ class GUI:
             justify="center",
             font=("Montserrat-Bold", 14 * -1)
         )
-        self.maze_option.current(0) # For Setting the Standard Video as Default
-                            # Though i know this won't work Correctly
-                            # will be changed in Future Commits
+        self.maze_option.current(0)
         self.maze_option.place(
             x=38.0,
             y=147.0,

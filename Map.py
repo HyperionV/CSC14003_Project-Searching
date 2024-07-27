@@ -92,10 +92,10 @@ class Map:
             "Breadth First Search": BFS.BFS,
             "Greedy Best First Search": GBFS.GBFS
         }
-        # try:
-        return algorithms[algorithm](adjacency_matrix, start_node, goal_node).Try()
-        # except:
-        #     raise ValueError("Invalid algorithm name")
+        try:
+            return algorithms[algorithm](adjacency_matrix, start_node, goal_node).Try()
+        except:
+            raise ValueError("Invalid algorithm name")
 
     def level2(self):
         mat = self.mat
