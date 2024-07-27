@@ -19,6 +19,7 @@ class Map:
         }
         self.path_color = "DarkSeaGreen2" 
 
+
         
     def getPath(self, level, algorithm_name = None):
         if(level == "Level 1"):
@@ -533,6 +534,9 @@ class Map:
                 self.canvas.create_rectangle(j * cell_size + leftMargin, i * cell_size + topMargin, (j + 1) * cell_size + leftMargin, (i + 1) * cell_size + topMargin, fill=color)
                 if val not in [0, -1]:
                     self.canvas.create_text(j * cell_size + cell_size/2 + leftMargin, i * cell_size + cell_size/2 + topMargin, text=val, fill="black", font=("Helvetica", cell_size//4))
+    
+
+
 
     def nextStep(self):
         if self.current_step < len(self.path):
@@ -598,6 +602,10 @@ class Map:
                     self.mat[goal[0]][goal[1]] = 'G'
                 else:
                     self.mat[goal[0]][goal[1]] = 'G' + str(j)
+            if(curStep == total_steps):
+                for i in range(len(self.path[0])):
+                        curPos = self.path[0][i]
+                        self.mat[curPos[0]][curPos[1]] = 'S' 
         return
 
         
