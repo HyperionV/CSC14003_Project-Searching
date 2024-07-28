@@ -87,8 +87,7 @@ class Map:
                     except:
                         print(f"\n\nError occured while reading data: ({idx}, {idj}) - \"{j}\"\n\n")
                         raise SystemExit
-        # print('agent:', agent, len(agent))
-        # print('goal:', goal, len(goal))
+        
         return time, fuel, mat, agent, goal, station
     
     def level1(self, algorithm):
@@ -152,7 +151,7 @@ class Map:
         return -1
 
     def level3(self):
-        # print('lvl3')
+        
         start = self.agent['S']
         end = self.goal['G']
         dis = [[[[1e9 for _ in range(self.fuel + 10)] for _ in range(self.time + 10)] for _ in range(len(self.mat[0]))] for _ in range(len(self.mat))]
@@ -230,7 +229,7 @@ class Map:
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
         return -1
-    # for level 4
+    
     def initIntrMap(self):
             for i in range(len(self.intrMap)):
                 for j in range(len(self.intrMap[0])):
@@ -249,9 +248,9 @@ class Map:
         return
     
     def findPath(self, start, end, fuel):
-        print('findPath:', start, end, fuel)
+        
         dis = [[[[1e9 for _ in range(self.fuel + 10)] for _ in range(self.time + 10)] for _ in range(len(self.intrMap[0]))] for _ in range(len(self.intrMap))]
-        # print('fuel:', fuel, self.fuel)
+        
         dis[start[0]][start[1]][0][fuel] = 0
         queue = []
         queue.append((start[0], start[1], 0, fuel))
@@ -267,10 +266,7 @@ class Map:
                 if self.intrMap[next_row][next_col][0] == 'S':
                     tmpWall.append((next_row, next_col, self.intrMap[next_row][next_col]))
                     self.intrMap[next_row][next_col] = -1
-        # for row in self.intrMap:
-        #     print(row)
-        # print('start:', start)
-        # print('\n')
+        
         while bool(queue):
             row, col, cur_time, cur_fuel = queue.pop(0)
             cur_dis = dis[row][col][cur_time][cur_fuel]
@@ -278,15 +274,15 @@ class Map:
                 continue
             if cur_time > self.time:
                 continue
-            # print('expand:', row, col, '   time:', cur_time)
+            
             if (row, col) == end:
                 path = []
                 tmp_fuel = cur_fuel
                 tmp_time = cur_time
-                # print('    last_time:', tmp_time)
+                
                 cnt = 0
                 while (row, col) != start:
-                    print('    ', row, col, '   ', dis[row][col][tmp_time][tmp_fuel], '   ', tmp_time, tmp_fuel)
+                    
                     cnt += 1
                     path.append((row, col))
                     extra_time = 1
@@ -301,15 +297,15 @@ class Map:
                             prv_time = tmp_time - extra_time
                             if self.mat[nr][nc] == -1:
                                 continue
-                            # print('   nr, nc:', nr, nc, self.mat[nr][nc], prv_time, tmp_fuel, dis[nr][nc][prv_time][tmp_fuel + 1])
+                            
                             if dis[nr][nc][prv_time][tmp_fuel + 1] < dis[row][col][tmp_time][tmp_fuel]:
-                                # print('    case1:', dis[nr][nc][prv_time][tmp_fuel + 1], dis[row][col][tmp_time][tmp_fuel], '   ', nr, nc, self.mat[nr][nc])
+                                
                                 row, col = nr, nc
                                 tmp_fuel = tmp_fuel + 1
                                 tmp_time = prv_time
                                 break
                             elif tmp_fuel == self.fuel:
-                                print('    case2')
+                                
                                 found_path = False
                                 for pre_fuel in range(self.fuel + 1):
                                     if dis[nr][nc][prv_time][pre_fuel] < dis[row][col][tmp_time][tmp_fuel]:
@@ -329,10 +325,9 @@ class Map:
                 if next_row < 0 or next_col < 0 or next_row >= len(self.intrMap) or next_col >= len(self.intrMap[0]):
                     continue
                 if self.intrMap[next_row][next_col] == -1:
-                    # print('  -1', next_row, next_col, self.intrMap[next_row][next_col])
+
                     continue
-                # print('  consider:', next_row, next_col)
-                # print('    fuel:', cur_fuel)
+
                 next_fuel = cur_fuel - 1
                 refuel_time = 0
                 stay_time = 1
@@ -348,11 +343,7 @@ class Map:
                 if cur_dis + 1 < dis[next_row][next_col][total_time][next_fuel]:
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_time + 1
-                    # print('  reach:', next_row, next_col, total_time, next_fuel)
-                    # if next_row == 11 and next_col == 1:
-                    #     print('dis:', total_time, next_fuel, dis[next_row][next_col][total_time][next_fuel])
-        
-        # if self.isStation(start[0], start[1]):
+                    
         validCell = []
         for k in range(4):
             nextRow = start[0] + dx[k]
@@ -362,7 +353,7 @@ class Map:
                     continue
                 if isinstance(self.mat[nextRow][nextCol], int):
                     validCell.append((nextRow, nextCol))
-        # num = random.randint(0, len(validCell) - 1)
+
         self.revert(tmpWall)
         if len(validCell) > 0:
             path = []
@@ -420,7 +411,7 @@ class Map:
         return
     
     def level4(self):
-        print('level4')
+        
         if self.level3() == -1:
             return (-1, -1)
         path = [[] for _ in range(len(self.agent))]
@@ -434,21 +425,16 @@ class Map:
         cnt = 0
         goalIdx = 0
         while True:
-            # print('cnt:', cnt)
-            for idx in range(len(self.agent)):
-                print(path[idx][len(path[idx]) - 1], ' ', end = '')
-            print('\n')
+
 
             if fuel[0] == 0:
                 path, goalList = -1, -1
                 break
             if self.isGoal(0):
                 break
-            # print('grid:')
-            # for row in self.intrMap:
-            #     print(row)
+
             for idx in range(len(self.agent)):
-                print('\n idx:', idx)
+                
 
                 cnt = cnt + 1
                 start, goal = (-1, -1), (-1, -1)
@@ -461,7 +447,7 @@ class Map:
                 if fuel[idx] == 0:
                     path[idx].append(path[idx][len(path[idx]) - 1])
                     continue
-                # print('idx:', idx)
+
                 curPath = self.findPath(start, goal, fuel[idx])
                 if curPath == -1:
                     path[idx].append(path[idx][len(path[idx]) - 1])
@@ -475,8 +461,7 @@ class Map:
                     goalIdx = goalIdx + 1
                     continue
                 self.goToCell(curPath[0], curPath[1])
-                # print('start, goal, fuel:', start, goal, fuel[idx], '  ', idx)
-                # print(' dec ', idx)
+
                 fuel[idx] = fuel[idx] - 1
                 if self.isStation(curPath[1][0], curPath[1][1]):
                     fuel[idx] = self.fuel
@@ -492,15 +477,7 @@ class Map:
                     else:
                         goalList[goalIdx].append((j, self.findGoal('G')))
                 goalIdx = goalIdx + 1
-        #         for row in self.intrMap:
-        #             print(row)
-        # print('path:', path)
-        # for i in range(len(path)):
-        #     print('path:', i, ' ' , len(path[i]))
-        #     for j in range(len(path[i])):
-        #         print(path[i][j], end = ' ')
-        # for lists in goalList:
-        #     print(lists)
+
 
         return (path, goalList)
 
@@ -571,7 +548,6 @@ class Map:
             self.drawMap()
     
     def loadMatrixState(self, curStep):
-        print('curStep:', curStep)
         total_steps = 0
         for i in range(len(self.path)):
             total_steps += len(self.path[i])
@@ -587,7 +563,7 @@ class Map:
             for i in range (0, curStep):
                 S_index = int(i / len(self.path))
                 S_turn = i % len(self.path)
-                # print('S_index:', S_index, '  S_turn:', S_turn, 'len: ', len(self.path[S_turn]))
+
 
                 if(S_turn == 0):
                     self.mat[self.path[S_turn][S_index][0]][self.path[S_turn][S_index][1]] = 'S' 

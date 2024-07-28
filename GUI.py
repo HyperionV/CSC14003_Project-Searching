@@ -71,7 +71,6 @@ class GUI:
             
             
     def updateButtonClicked(self):
-        # self.hidePathInfo()
         self.path = None
         self.goalList = None
         self.changePauseresumeState("pause")
@@ -82,9 +81,7 @@ class GUI:
         if self.level != "Level 4":
             self.path = self.map.getPath(self.level, graph)
         else:
-            print("before")
             self.path, self.goalList = self.map.getPath(self.level, graph)
-            print("after")
         
         self.showPathInfo()
 
@@ -134,7 +131,7 @@ class GUI:
             self.map.autoRunlvl4(autoSpeed, totalStep)
         else:
             self.map.autoRun(autoSpeed)
-        # self.showPathInfo(12, 13, 14)
+
         
 
     def showPathInfo(self):
@@ -209,10 +206,6 @@ class GUI:
 
 
     def init(self):
-        # window = Tk()
-        # window.title("PathFinder")
-        # window.geometry("1200x850")
-        # window.configure(bg = "#171435")
 
         self.sidebar = Canvas(
             self.window,
@@ -285,9 +278,8 @@ class GUI:
             justify="center",
             font=("Montserrat-Bold", 14 * -1)
         )
-        self.level_option.current(0) # For Setting the Standard Video as Default
-                            # Though i know this won't work Correctly
-                            # will be changed in Future Commits
+        self.level_option.current(0) 
+                           
         self.level_option.place(
             x=38.0,
             y=232.0,
@@ -310,9 +302,8 @@ class GUI:
             justify="center",
             font=("Montserrat-Bold", 12 * -1)
         )
-        self.graph_option.current(0) # For Setting the Standard Video as Default
-                            # Though i know this won't work Correctly
-                            # will be changed in Future Commits
+        self.graph_option.current(0) 
+                           
         self.graph_option.place(
             x=38.0,
             y=320.0,
@@ -334,9 +325,8 @@ class GUI:
             justify="center",
             font=("Montserrat-Bold", 14 * -1)
         )
-        self.speed_option.current(0) # For Setting the Standard Video as Default
-                            # Though i know this won't work Correctly
-                            # will be changed in Future Commits
+        self.speed_option.current(0) 
+                           
         self.speed_option.place(
             x=38.0,
             y=410.0,
