@@ -145,6 +145,8 @@ class Map:
                 if 0 <= nr < len(mat) and 0 <= nc < len(mat[0]) and mat[nr][nc] != -1:
                     cell = mat[nr][nc]
                     new_time = curr_time + (0 if cell == 0 or isinstance(cell, str) else cell) + 1
+                    if new_time > self.time:
+                        continue
                     if cur_dis + 1 < distance_matrix[nr][nc][new_time]:
                         distance_matrix[nr][nc][new_time] = cur_dis + 1
                         queue.append((nr, nc, new_time))
@@ -225,7 +227,6 @@ class Map:
                 if total_time > self.time:
                     continue
                 if cur_dis + 1 < dis[next_row][next_col][total_time][next_fuel]:
-                    # time to next cell = current time + stay time (lvl 2) + refuel time (if at station)
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_dis + 1
         return -1
@@ -343,7 +344,6 @@ class Map:
                 if cur_dis + 1 < dis[next_row][next_col][total_time][next_fuel]:
                     queue.append((next_row, next_col, total_time, next_fuel))
                     dis[next_row][next_col][total_time][next_fuel] = cur_time + 1
-                    
         validCell = []
         for k in range(4):
             nextRow = start[0] + dx[k]
